@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <h1 id="login-successful"></h1>
+        <div class="account-info">
+            <h2>Account Information</h2>
+            <p><strong>Account Number:</strong> <%= user.AccountNumber %></p>
+            <p><strong>Customer ID:</strong> <%= user.customerid %></p>
+        </div>
+        <div class="balance" id="balance-section">
+            <h2>Account Balance</h2>
+            <p><strong id="balance-display">Current Balance:</strong> $<%= user.balance %></p>
+            <button id="view-balance-btn">View Balance</button>
+        </div>
+        <div class="actions">
+            <h2>Actions</h2>
+            <button id="statement-btn">View Statement</button>
+            <button id="transfer-btn">Transfer Amount</button>
+        </div>
+        <div class="transfer-form" id="transfer-form" style="display: none;">
+            <h2>Transfer Amount</h2>
+            <form id="transfer-amount-form" action="/transfer" method="post">
+                <div class="form-group">
+                    <label for="account-number">Account Number:</label>
+                    <input type="text" id="account-number" name="accountnumber" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-account-number">Confirm Account Number:</label>
+                    <input type="text" id="confirm-account-number" name="confirmaccountnumber" required>
+                </div>
+                <div class="form-group">
+                    <label for="transfer-amount">Amount:</label>
+                    <input type="number" id="transfer-amount" name="amount" required>
+                </div>
+                <div class="form-group">
+                    <label for="account-password">OTP:</label>
+                    <input type="password" id="account-password" name="otp">
+                </div>
+                <div class="button-group">
+                    <button type="submit">Transfer</button>
+                </div>
+            </form>
+            <div class="button-group">
+                <button type="button" id="get-otp-btn">Get OTP</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get the login-successful element
+        const loginSuccessfulElement = document.getElementById("login-successful");
+
+        // Create a new Date object to get the current date and time
+        const currentDate = new Date();
+
+        // Format the date and time
+        const formattedDate = currentDate.toLocaleString();
+
+        // Insert the formatted date and time into the login-successful element
+        loginSuccessfulElement.innerText = "Login successful at " + formattedDate;
+
+        // Get the transfer form and the transfer button
+        const transferForm = document.getElementById("transfer-form");
+        const transferButton = document.getElementById("transfer-btn");
+        const getOTPButton = document.getElementById("get-otp-btn");
+        const transferAmountForm = document.getElementById("transfer-amount-form");
+        const otpInput = document.getElementById("account-password");
+
+        // Add event listener to the transfer button to toggle the visibility of the transfer form
+        transferButton.addEventListener("click", function() {
+            toggleVisibility(transferForm);
+        });
+
+        // Add event listener to the Get OTP button
+        getOTPButton.addEventListener("click", function() {
+            // Get the account number and confirm account number values
+            const accountNumber = document.getElementById("account-number").value;
+            const confirmAccountNumber = document.getElementById("confirm-account-number").value;
+
+            // Check if the account numbers match
+            if (accountNumber === confirmAccountNumber) {
+                // Send a request to the backend to generate and send OTP
+                fetch('/generatetransferotp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        accountNumber: accountNumber
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('OTP sent!');
+                    } else {
+                        throw new Error('Failed to send OTP');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to send OTP. Please try again later.');
+                });
+            } else {
+                alert('Account numbers do not match. Please re-enter the account numbers.');
+            }
+        });
+
+        // Add event listener to the form's submit event
+        transferAmountForm.addEventListener("submit", function(event) {
+            if (otpInput.value === "") {
+                event.preventDefault(); // Prevent form submission
+                alert("Please enter the OTP before submitting the form.");
+            }
+        });
+
+        // Function to toggle visibility of an element
+        function toggleVisibility(element) {
+            if (element.style.display === "none") {
+                element.style.display = "block";
+            } else {
+                element.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
