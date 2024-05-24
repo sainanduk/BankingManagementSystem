@@ -1,7 +1,3 @@
-Certainly! Here's a sample README file for a banking management application on GitHub:
-
----
-
 # Banking Management Application
 
 ## Overview
@@ -21,7 +17,7 @@ This Banking Management Application is designed to handle various banking operat
     ```
 2. Navigate to the project directory:
     ```sh
-    cd banking-management-app
+    cd BankingManagementSystem
     ```
 3. Install dependencies:
     ```sh
